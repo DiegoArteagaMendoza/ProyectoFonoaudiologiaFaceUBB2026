@@ -1,0 +1,32 @@
+# Entorno virtual
+.venv/
+
+# Caché Python
+__pycache__/
+*.py[cod]
+
+# Variables de entorno
+.env
+
+# VSCode
+.vscode/
+
+# Archivos del sistema
+.DS_Store
+
+# Caché de migrations
+**/migrations/__pycache__/
+
+# Base de datos SQLite local
+db.sqlite3
+
+# Archivos de logs
+*.log
+
+# Archivos de pytest/cache
+.pytest_cache/
+
+# Archivos de distribución
+build/
+dist/
+*.egg-info/
