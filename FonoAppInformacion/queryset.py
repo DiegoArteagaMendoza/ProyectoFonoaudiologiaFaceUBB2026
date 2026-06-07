@@ -1,4 +1,5 @@
 from django.db import models
+from django.utils import timezone
 
 class FonoApp_Informacion_Queryset(models.QuerySet):
 
@@ -68,6 +69,9 @@ class FonoApp_Informacion_Queryset(models.QuerySet):
         # Limpiamos datos que no deberían actualizarse por esta vía (por seguridad)
         datos_a_actualizar.pop('FonoApp_Administracion', None)
         datos_a_actualizar.pop('imagenes_subidas', None) # Las imágenes se manejan aparte
+        
+        # 2. Inyectamos la fecha y hora actual manualmente para el campo de actualización
+        datos_a_actualizar['fecha_actualizacion'] = timezone.now()
         
         # El update() retorna el número de filas afectadas (1 si fue exitoso, 0 si falló)
         filas_actualizadas = self.filter(id_informacion=id_informacion, estado=True).update(**datos_a_actualizar)

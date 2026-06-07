@@ -11,6 +11,7 @@ class FonoApp_Administracion(AbstractBaseUser, PermissionsMixin):
     estado = models.BooleanField(default=True) # 1 = activo
     is_staff = models.BooleanField(default=False, blank=True)
     is_active = models.BooleanField(default=True, blank=True)
+    last_conection = models.DateTimeField(null=True, blank=True)
     
     USERNAME_FIELD = 'email'
     REQUIRED_FIELDS = ['nombre', 'rut']

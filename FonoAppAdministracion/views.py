@@ -1,3 +1,4 @@
+from django.utils import timezone
 from rest_framework.decorators import api_view, authentication_classes, permission_classes
 from rest_framework.permissions import IsAuthenticated, AllowAny
 from rest_framework.response import Response
@@ -42,6 +43,9 @@ def login_view(request):
         if not usuario.estado:
             return Response({'error': 'Cuenta inactiva'}, status=status.HTTP_401_UNAUTHORIZED)
         
+        usuario.last_conection = timezone.now()
+        usuario.save(update_field=['last_conection'])
+
         refresh = RefreshToken.for_user(usuario)
         return Response({
             'refresh': str(refresh),

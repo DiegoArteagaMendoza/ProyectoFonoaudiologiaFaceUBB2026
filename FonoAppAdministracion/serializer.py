@@ -7,7 +7,7 @@ class FonoApp_Serializer(serializers.ModelSerializer):
 
     class Meta:
         model = FonoApp_Administracion
-        fields = ['id_usuario', 'nombre', 'rut', 'email', 'tipo', 'estado', 'is_staff', 'password']
+        fields = ['id_usuario', 'nombre', 'rut', 'email', 'tipo', 'estado', 'is_staff', 'password', 'last_conection']
         read_only_fields = ['id_usuario']
 
     def create(self, validated_data):
