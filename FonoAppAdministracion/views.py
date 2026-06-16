@@ -44,7 +44,7 @@ def login_view(request):
             return Response({'error': 'Cuenta inactiva'}, status=status.HTTP_401_UNAUTHORIZED)
         
         usuario.last_conection = timezone.now()
-        usuario.save(update_field=['last_conection'])
+        usuario.save(update_fields=['last_conection'])
 
         refresh = RefreshToken.for_user(usuario)
         return Response({
