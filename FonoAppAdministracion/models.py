@@ -7,10 +7,11 @@ class FonoApp_Administracion(AbstractBaseUser, PermissionsMixin):
     nombre = models.CharField(max_length=50)
     rut = models.CharField(max_length=12, unique=True)
     email = models.EmailField(unique=True)
-    tipo = models.BooleanField(default=False) # 0 = vet / 1 = indep
+    tipo = models.BooleanField(default=False)
     estado = models.BooleanField(default=True) # 1 = activo
     is_staff = models.BooleanField(default=False, blank=True)
     is_active = models.BooleanField(default=True, blank=True)
+    last_conection = models.DateTimeField(null=True, blank=True)
     
     USERNAME_FIELD = 'email'
     REQUIRED_FIELDS = ['nombre', 'rut']

@@ -40,10 +40,19 @@ class FonoApp_InformacionSerializer(serializers.ModelSerializer):
 
     def validate_imagenes_subidas(self, value):
         """
-        Validación temprana: Frenamos la petición si vienen más de 4 imágenes.
+        Validación: Máximo 4 imágenes y solo formatos admitidos.
         """
         if len(value) > 4:
             raise serializers.ValidationError("Solo se permiten hasta 4 imágenes por registro.")
+        
+        # Validar formatos permitidos
+        formatos_permitidos = ['image/jpeg', 'image/png']
+        for img in value:
+            if img.content_type not in formatos_permitidos:
+                raise serializers.ValidationError(
+                    f"El formato del archivo '{img.name}' no está permitido. Solo se aceptan imágenes JPG, JPEG y PNG."
+                )
+                
         return value
 
     def create(self, validated_data):

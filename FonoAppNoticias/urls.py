@@ -48,4 +48,37 @@ urlpatterns = [
     # }
     # -------------------------------------------------------------------------
     path('<int:id_noticia>/eliminar/', views.noticia_eliminar, name='noticia-eliminar'),
+
+    # -------------------------------------------------------------------------
+    # MÉTODO: PUT o PATCH
+    # URL: /api/noticias/1/editar/  <-- Reemplazar '1' por el ID de la noticia
+    # HEADERS: { "Authorization": "Bearer <tu_access_token>" }
+    # BODY (JSON o FormData):
+    # {
+    #   "titulo": "Nuevo título corregido",
+    #   "contenido": "Contenido actualizado de la noticia..."
+    # }
+    # RESPUESTA ESPERADA (JSON):
+    # {
+    #   "mensaje": "Noticia actualizada correctamente"
+    # }
+    # -------------------------------------------------------------------------
+    path('<int:id_noticia>/editar/', views.noticia_editar, name='noticia-editar'),
+    
+    # -------------------------------------------------------------------------
+    # MÉTODO: POST
+    # URL: /api/noticias/1/imagenes/agregar/  <-- '1' es el id_noticia
+    # HEADERS: { "Authorization": "Bearer <tu_access_token>" }
+    # BODY: FormData (multipart/form-data)
+    #   formData.append('imagenes_subidas', archivoFile1);
+    # -------------------------------------------------------------------------
+    path('<int:id_noticia>/imagenes/agregar/', views.noticia_imagen_agregar, name='noticia-imagen-agregar'),
+
+    # -------------------------------------------------------------------------
+    # MÉTODO: DELETE
+    # URL: /api/noticias/imagenes/15/eliminar/  <-- '15' es el id de la IMAGEN a borrar
+    # HEADERS: { "Authorization": "Bearer <tu_access_token>" }
+    # BODY: Ninguno
+    # -------------------------------------------------------------------------
+    path('imagenes/<int:id_imagen>/eliminar/', views.noticia_imagen_eliminar, name='noticia-imagen-eliminar'),
 ]
