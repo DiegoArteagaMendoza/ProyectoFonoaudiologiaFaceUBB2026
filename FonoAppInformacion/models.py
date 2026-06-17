@@ -6,10 +6,11 @@ class FonoApp_Informacion(models.Model):
     
     # 1. Definimos el Enum usando TextChoices
     class CategoriaOpciones(models.TextChoices):
-        SALUD = 'SA', 'Salud Animal'
-        CUIDADOS = 'CU', 'Cuidados Básicos'
-        NUTRICION = 'NU', 'Nutrición'
-        TIPS = 'TI', 'Tips y Consejos'
+        SALUD = 'NI', 'ninos'
+        CUIDADOS = 'PO', 'profesores'
+        NUTRICION = 'CA', 'cantantesactores'
+        TIPS = 'LO', 'locutores'
+        GENERAL = 'GE', 'general'
         # Formato: VARIABLE_BD = 'VALOR_GUARDADO_EN_BD', 'Nombre legible para el usuario'
 
     id_informacion = models.AutoField("Codigo Informacion", primary_key=True)
@@ -21,7 +22,7 @@ class FonoApp_Informacion(models.Model):
     categoria = models.CharField(
         max_length=2, # Debe coincidir con el largo de 'SA', 'CU', etc.
         choices=CategoriaOpciones.choices,
-        default=CategoriaOpciones.CUIDADOS,
+        default=CategoriaOpciones.GENERAL,
         verbose_name="Categoría"
     )
     
