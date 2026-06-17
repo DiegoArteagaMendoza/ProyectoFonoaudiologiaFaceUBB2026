@@ -1,13 +1,29 @@
+import os
 from pathlib import Path
+import dj_database_url
+from datetime import timedelta
 
 BASE_DIR = Path(__file__).resolve().parent.parent
 
-SECRET_KEY = 'django-insecure-)dj+y&$f2+q)elr0c!&k2fo^*^y+l$p*&l+civ#k3)fx959a0%'
+# ==========================================
+# 1. SEGURIDAD Y ENTORNO
+# ==========================================
+# Lee la variable desde el servidor, o usa tu clave local por defecto
+SECRET_KEY = os.environ.get(
+    'SECRET_KEY', 
+    'django-insecure-)dj+y&$f2+q)elr0c!&k2fo^*^y+l$p*&l+civ#k3)fx959a0%'
+)
 
-DEBUG = True
+# Render pasará DEBUG=False, en local seguirá siendo True
+DEBUG = os.environ.get('DEBUG', 'True') == 'True'
 
-ALLOWED_HOSTS = []
+# Render asignará los hosts permitidos (ej. tu-app.onrender.com), en local permite vacío/localhost
+ALLOWED_HOSTS = os.environ.get('ALLOWED_HOSTS', 'localhost,127.0.0.1').split(',')
 
+
+# ==========================================
+# 2. APLICACIONES
+# ==========================================
 DEV_APPS = [
     'FonoAppAdministracion',
     'FonoAppCuidados',
@@ -22,6 +38,8 @@ BASE_APPS = [
     'django.contrib.contenttypes',
     'django.contrib.sessions',
     'django.contrib.messages',
+    # whitenoise debe ir antes de staticfiles si se usa la integración de runserver (opcional pero recomendado)
+    'whitenoise.runserver_nostatic', 
     'django.contrib.staticfiles',
 ]
 
@@ -33,9 +51,14 @@ FRAMEWORKS = [
 
 INSTALLED_APPS = DEV_APPS + BASE_APPS + FRAMEWORKS
 
+
+# ==========================================
+# 3. MIDDLEWARE
+# ==========================================
 MIDDLEWARE = [
     'corsheaders.middleware.CorsMiddleware',
     'django.middleware.security.SecurityMiddleware',
+    'whitenoise.middleware.WhiteNoiseMiddleware',  # Añadido para servir estáticos en Render
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
@@ -44,12 +67,19 @@ MIDDLEWARE = [
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
 ]
 
-CORS_ALLOWED_ORIGINS = [
-    "http://localhost:4200",
-]
+# Configuración de CORS dinámica
+# En Render añadirás: CORS_ALLOWED_ORIGINS=https://tu-app-angular.vercel.app
+CORS_ALLOWED_ORIGINS = os.environ.get(
+    'CORS_ALLOWED_ORIGINS', 
+    'http://localhost:4200'
+).split(',')
 
 ROOT_URLCONF = 'FonoApp.urls'
 
+
+# ==========================================
+# 4. TEMPLATES Y WSGI
+# ==========================================
 TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
@@ -68,44 +98,48 @@ TEMPLATES = [
 WSGI_APPLICATION = 'FonoApp.wsgi.application'
 
 
-# Dev db
+# ==========================================
+# 5. BASE DE DATOS
+# ==========================================
+# En Render, se leerá automáticamente la variable DATABASE_URL.
+# Si no existe (como en tu local), usará esta cadena de conexión con tus credenciales.
 DATABASES = {
-    'default': {
-        'ENGINE': 'django.db.backends.postgresql', # Motor de base de datos
-        'NAME': 'fonoDevDB',                 # Nombre de tu base de datos PostgreSQL
-        'USER': 'admin',                   # Usuario de PostgreSQL
-        'PASSWORD': 'secret',            # Contraseña del usuario
-        'HOST': 'localhost',                       # O la IP/dominio de tu servidor DB
-        'PORT': '5432',                            # Puerto por defecto de PostgreSQL
-    }
+    'default': dj_database_url.config(
+        default='postgres://admin:secret@localhost:5432/fonoDevDB',
+        conn_max_age=600
+    )
 }
 
+
+# ==========================================
+# 6. VALIDACIÓN DE CONTRASEÑAS E INTERNACIONALIZACIÓN
+# ==========================================
 AUTH_PASSWORD_VALIDATORS = [
-    {
-        'NAME': 'django.contrib.auth.password_validation.UserAttributeSimilarityValidator',
-    },
-    {
-        'NAME': 'django.contrib.auth.password_validation.MinimumLengthValidator',
-    },
-    {
-        'NAME': 'django.contrib.auth.password_validation.CommonPasswordValidator',
-    },
-    {
-        'NAME': 'django.contrib.auth.password_validation.NumericPasswordValidator',
-    },
+    {'NAME': 'django.contrib.auth.password_validation.UserAttributeSimilarityValidator'},
+    {'NAME': 'django.contrib.auth.password_validation.MinimumLengthValidator'},
+    {'NAME': 'django.contrib.auth.password_validation.CommonPasswordValidator'},
+    {'NAME': 'django.contrib.auth.password_validation.NumericPasswordValidator'},
 ]
 
 LANGUAGE_CODE = 'en-us'
-
 TIME_ZONE = 'UTC'
-
 USE_I18N = True
-
 USE_TZ = True
 
+
+# ==========================================
+# 7. ARCHIVOS ESTÁTICOS
+# ==========================================
 STATIC_URL = 'static/'
+# Directorio donde se recopilarán los estáticos al ejecutar collectstatic (Obligatorio para Render)
+STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')
+# Compresión y cacheo de estáticos con Whitenoise
+STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
 
 
+# ==========================================
+# 8. REST FRAMEWORK & JWT
+# ==========================================
 REST_FRAMEWORK = {
     'DEFAULT_AUTHENTICATION_CLASSES': (
         'FonoAppFunciones.authentication.CustomJWTAuthentication',
@@ -115,28 +149,19 @@ REST_FRAMEWORK = {
     ),
 }
 
-AUTH_USER_MODEL = 'FonoAppAdministracion.FonoApp_Administracion' # Formato: 'nombre_app.NombreModelo'
+AUTH_USER_MODEL = 'FonoAppAdministracion.FonoApp_Administracion'
 
-# JWT config
-from datetime import timedelta
 SIMPLE_JWT = {
     'ACCESS_TOKEN_LIFETIME': timedelta(minutes=60),
     'REFRESH_TOKEN_LIFETIME': timedelta(days=1),
     'AUTH_HEADER_TYPES': ('Bearer',),
-    
-    # AGREGA ESTA LÍNEA:
-    'USER_ID_FIELD': 'id_usuario',  # Aquí le decimos que use tu campo personalizado
-    'USER_ID_CLAIM': 'user_id',    # Este es el nombre que tendrá dentro del token JSON
+    'USER_ID_FIELD': 'id_usuario',
+    'USER_ID_CLAIM': 'user_id',
 }
 
-"""
-    MANEJO DE IMAGENES
-"""
 
-import os
-
-# Carpeta física donde se guardan los archivos
+# ==========================================
+# 9. MANEJO DE IMÁGENES / MEDIA
+# ==========================================
 MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
-
-# URL base desde la cual se servirán en el navegador
 MEDIA_URL = '/media/'
