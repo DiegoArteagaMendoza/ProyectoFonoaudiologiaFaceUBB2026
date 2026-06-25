@@ -6,7 +6,7 @@ from rest_framework import status
 from rest_framework_simplejwt.tokens import RefreshToken
 from FonoAppAdministracion.models import FonoApp_Administracion
 from FonoAppAdministracion.serializer import FonoApp_Serializer
-from FonoAppFunciones.authentication import CustomJWTAuthentication
+from FonoAppFunciones.authentication import CustomJWTAuthentication, reCaptcha
 
 @api_view(['POST'])
 @permission_classes([AllowAny]) # Permite acceso inicial (registro) sin token
@@ -32,6 +32,13 @@ def login_view(request):
     # frontend debe enviar {"correo": "...", "password": "..."}
     email = request.data.get('correo')
     password = request.data.get('password')
+    # captcha_token = request.data.get('captcha_token')
+
+    # if not reCaptcha.captcha_verification(captcha_token):
+    #     return Response(
+    #         {'error': 'Fallo en la validacion de seguridad (reCAPTCHA). Por favor intente denuevo'},
+    #         status=status.HTTP_400_BAD_REQUEST
+    #     )
 
     if not email or not password:
         return Response({'error': 'Email y password requeridos'}, status=status.HTTP_400_BAD_REQUEST)
